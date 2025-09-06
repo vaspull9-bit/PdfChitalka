@@ -1,3 +1,5 @@
+// val org.gradle.accessors.dm.LibrariesForLibs.repo: kotlin.Any
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -9,17 +11,16 @@ android {
 
     defaultConfig {
         applicationId = "com.example.pdfchitalka"
-        minSdk = 23  // Android 5.0 Lollipop
+        minSdk = 23
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 5
+        versionName = "5.3.24"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
     }
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -30,34 +31,34 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
     }
     buildFeatures {
         viewBinding = true
     }
 }
 
+
+
 dependencies {
+    // Основные зависимости через version catalog
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-
-    // Material 3
-    implementation("androidx.compose.material3:material3:1.2.1")
-    implementation("com.google.android.material:material:1.11.0")
-
-    // PDFBox для работы с PDF
-    implementation("com.tom-roush:pdfbox-android:2.0.27.0")
-
-    // Для работы с файлами
+    implementation(libs.androidx.activity)
     implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.material3)
+    implementation(libs.gson)
+    implementation(libs.pdfbox.android)
 
+    // Тестирование
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

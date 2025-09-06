@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_load"
+        android:title="Загрузить PDF"
+        android:icon="@drawable/ic_baseline_file_open_24"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_show_original"
+        android:title="Показать оригинал"
+        android:visible="true" />
+
+    <item
+        android:id="@+id/menu_save"
+        android:title="Сохранить"
+        android:icon="@drawable/ic_baseline_save_24"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_share"
+        android:title="Поделиться"
+        android:icon="@drawable/ic_baseline_share_24"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_copy"
+        android:title="Копировать текст"
+        android:icon="@drawable/ic_baseline_content_copy_24"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_speak"
+        android:title="Озвучить"
+        android:icon="@drawable/ic_baseline_volume_up_24"
+        app:showAsAction="never" />
+
+
+    <item
+        android:id="@+id/menu_stop"
+        android:title="Остановить"
+        android:icon="@drawable/ic_baseline_stop_24"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_search"
+        android:title="Поиск"
+        app:icon="@drawable/ic_baseline_search_24" />
+
+    <item
+        android:id="@+id/menu_tts_status"
+        android:title="Проверить TTS"
+        android:icon="@drawable/ic_baseline_info_24"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_bookmark"
+        android:title="Закладка"
+        android:icon="@drawable/ic_baseline_bookmark_24"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_show_bookmarks"
+        android:title="Мои закладки"
+        android:icon="@drawable/ic_baseline_collections_bookmark_24"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_fullscreen"
+        android:title="Полный экран"
+        android:icon="@drawable/ic_baseline_fullscreen_24"
+        app:showAsAction="never" />
+    <!-- Добавить перед menu_about -->
+    <item
+        android:id="@+id/menu_tts_settings"
+        android:title="Настройки озвучки"
+        android:visible="true" />
+
+    <item
+        android:id="@+id/menu_about"
+        android:title="О программе"
+        android:icon="@drawable/ic_info_circle"
+        app:showAsAction="never"/>
+
+
+</menu>

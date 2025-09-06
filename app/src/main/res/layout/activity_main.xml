@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="8dp"
     tools:context=".MainActivity">
 
-    <!-- AppBar с названием и кнопкой информации -->
+    <!-- Компактный Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -17,178 +15,425 @@
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <!-- Иконка PDF слева -->
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_pdf"
-                android:contentDescription="PDF"
-                android:layout_marginEnd="8dp" />
+            android:layout_height="match_parent">
 
             <!-- Название приложения -->
             <TextView
-                android:layout_width="0dp"
+                android:id="@+id/toolbar_title"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="8dp"
                 android:text="PdfChitalka"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white" />
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
-            <!-- Кнопка "О компании" -->
+            <!-- Кнопки управления -->
+
+
             <ImageButton
-                android:id="@+id/btnAbout"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/ic_info_circle"
-                android:contentDescription="О компании"
+                android:id="@+id/btnSearch"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_toRightOf="@+id/toolbar_title"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:tint="@android:color/white" />
+                android:contentDescription="Поиск"
+                android:src="@drawable/ic_baseline_search_24"
+                app:tint="?android:attr/textColorPrimaryInverse" />
 
-        </LinearLayout>
+            <!-- Индикатор страниц -->
+            <TextView
+                android:id="@+id/pageIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/btnSearch"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="16dp"
+                android:text="1/1"
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <!-- Кнопки навигации -->
+            <ImageButton
+                android:id="@+id/btnPrevPage"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_toRightOf="@+id/pageIndicator"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Предыдущая страница"
+            android:src="@drawable/ic_baseline_arrow_back_24"
+            app:tint="?android:attr/textColorPrimaryInverse"
+            android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/btnNextPage"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_toRightOf="@+id/btnPrevPage"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Следующая страница"
+                android:src="@drawable/ic_baseline_arrow_forward_24"
+                app:tint="?android:attr/textColorPrimaryInverse"
+                android:visibility="gone" />
+
+            <!-- Кнопка меню -->
+            <ImageButton
+                android:id="@+id/btnMenu"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Меню"
+                android:src="@drawable/ic_baseline_more_vert_24"
+                app:tint="?android:attr/textColorPrimaryInverse" />
+
+        </RelativeLayout>
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- Панель кнопок управления -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="8dp"
-        android:background="?attr/colorPrimarySurface">
-
-        <!-- Первая строка кнопок -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2">
-
-            <Button
-                android:id="@+id/btnLoadPdf"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:text="Загрузить PDF"
-                android:layout_margin="4dp"
-                android:drawableStart="@drawable/ic_baseline_file_open_24"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored" />
-
-            <Button
-                android:id="@+id/btnSavePdf"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:text="Сохранить"
-                android:layout_margin="4dp"
-                android:drawableStart="@drawable/ic_baseline_save_24"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored" />
-
-        </LinearLayout>
-
-        <!-- Вторая строка кнопок -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2">
-
-            <Button
-                android:id="@+id/btnCopyText"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:text="Копировать"
-                android:layout_margin="4dp"
-                android:drawableStart="@drawable/ic_baseline_content_copy_24"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored" />
-
-            <Button
-                android:id="@+id/btnSharePdf"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:text="Поделиться"
-                android:layout_margin="4dp"
-                android:drawableStart="@drawable/ic_baseline_share_24"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored" />
-
-        </LinearLayout>
-
-        <!-- Третья строка кнопок (озвучивание) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2">
-
-            <Button
-                android:id="@+id/btnSpeakText"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:text="@string/menu_speak"
-                android:layout_margin="4dp"
-                android:drawableStart="@drawable/ic_baseline_volume_up_24"
-                android:drawablePadding="8dp"
-                android:gravity="center"
-                android:minHeight="48dp"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:enabled="false" />
-
-            <Button
-                android:id="@+id/btnStopSpeech"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:text="@string/menu_stop"
-                android:layout_margin="4dp"
-                android:drawableStart="@drawable/ic_baseline_stop_24"
-                android:drawablePadding="8dp"
-                android:gravity="center"
-                android:minHeight="48dp"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:enabled="false" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <!-- Область текста PDF с прогрессом загрузки -->
-    <RelativeLayout
+    <!-- Контейнер для PDF просмотра -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="8dp">
+        android:layout_above="@+id/playerPanel"
+        android:layout_below="@+id/toolbar">
 
+        <!-- PDF ImageView -->
+        <ImageView
+            android:id="@+id/pdfImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:visibility="gone" />
+
+        <!-- Прогресс-бар -->
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:visibility="gone" />
+            android:layout_gravity="center"
+            android:visibility="gone" />  <!-- ← ИЗМЕНИ НА gone -->
 
-        <ScrollView
+        <!-- Текст для озвучки (скрытый) -->
+        <TextView
+            android:id="@+id/pdfTextViewHidden"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            tools:text="Скрытый текст для TTS" />
+
+    </FrameLayout>
+
+    <!-- Текстовое представление для поиска и синхронизации -->
+    <ScrollView
+        android:id="@+id/textScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/playerPanel"
+        android:layout_below="@+id/toolbar"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/pdfTextView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:lineSpacingMultiplier="1.3"
+            android:padding="16dp"
+            android:textColor="@android:color/black"/>
+    </ScrollView>
 
-            <TextView
-                android:id="@+id/pdfTextView"
-                android:layout_width="match_parent"
+    <!-- Панель результатов поиска -->
+    <LinearLayout
+        android:id="@+id/searchPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:background="#CCFFFFFF"
+        android:padding="8dp"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/searchResultText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:text="Результаты поиска"
+            android:layout_marginBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <!-- Кнопка "Назад" -->
+            <ImageButton
+                android:id="@+id/btnPrevSearch"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginHorizontal="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_prev"
+                android:contentDescription="Предыдущий результат"
+                android:scaleType="centerInside"
+                app:tint="#FF000000"/>
+
+            <!-- Счетчик результатов с номером страницы -->
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Загрузите PDF файл для просмотра текста\n\nДля загрузки нажмите кнопку 'Загрузить PDF' или откройте файл через проводник"
-                android:textSize="14sp"
-                android:padding="12dp"
-                android:lineSpacingMultiplier="1.2"
-                android:background="@android:drawable/edit_text"
-                android:textIsSelectable="true" />
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
 
-        </ScrollView>
+                <TextView
+                    android:id="@+id/searchPosition"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0/0"
+                    android:textSize="14sp"
+                    android:textColor="#FF000000"/>
 
-    </RelativeLayout>
+                <TextView
+                    android:id="@+id/searchPageNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Страница: 0"
+                    android:textSize="12sp"
+                    android:textColor="#FF666666"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="4dp"
+                    android:background="?attr/selectableItemBackground"/>
+            </LinearLayout>
 
-</LinearLayout>
+            <!-- Кнопка "Вперед" -->
+            <ImageButton
+                android:id="@+id/btnNextSearch"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginHorizontal="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_next"
+                android:contentDescription="Следующий результат"
+                android:scaleType="centerInside"
+                app:tint="#FF000000"/>
+
+            <!-- Кнопка "Закрыть" -->
+            <ImageButton
+                android:id="@+id/btnCloseSearch"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginHorizontal="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_close"
+                android:contentDescription="Закрыть поиск"
+                android:scaleType="centerInside"
+                app:tint="#FF000000"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Кнопки управления зумом -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_above="@+id/playerPanel"
+        android:layout_margin="16dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageButton
+            android:id="@+id/btnZoomIn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_zoom_in"
+            android:contentDescription="Увеличить"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+        <ImageButton
+            android:id="@+id/btnZoomOut"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_zoom_out"
+            android:contentDescription="Уменьшить"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+        <ImageButton
+            android:id="@+id/btnResetZoom"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_zoom_reset"
+            android:contentDescription="Сбросить зум"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+    </LinearLayout>
+
+    <!-- Панель управления озвучкой -->
+    <LinearLayout
+        android:id="@+id/playerPanel"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:background="#CC000000"
+        android:paddingHorizontal="4dp"
+        android:paddingVertical="8dp"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:gravity="center">
+
+        <!-- Первая группа: навигация -->
+        <ImageButton
+            android:id="@+id/btnRewindToStart"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_rewind_to_start"
+            android:contentDescription="В начало"
+            android:scaleType="centerInside"
+            app:tint="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/btnRewindBack"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_rewind_back"
+            android:contentDescription="Назад"
+            android:scaleType="centerInside"
+            app:tint="@android:color/white" />
+
+        <!-- Вторая группа: управление воспроизведением -->
+        <ImageButton
+            android:id="@+id/btnPause"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginHorizontal="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_pause"
+            android:contentDescription="Пауза"
+            android:scaleType="centerInside"
+            app:tint="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/btnStop"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_stop"
+            android:contentDescription="Стоп"
+            android:scaleType="centerInside"
+            app:tint="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/btnPlay"
+            android:layout_width="36dp"
+            android:layout_height="44dp"
+            android:layout_marginHorizontal="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_play"
+            android:contentDescription="Воспроизвести"
+            android:scaleType="centerInside"
+            app:tint="@android:color/white" />
+
+        <!-- Третья группа: навигация -->
+        <ImageButton
+            android:id="@+id/btnRewindForward"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_rewind_forward"
+            android:contentDescription="Вперед"
+            android:scaleType="centerInside"
+            app:tint="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/btnRewindToEnd"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_rewind_to_end"
+            android:contentDescription="В конец"
+            android:scaleType="centerInside"
+            app:tint="@android:color/white" />
+
+        <!-- Настройки -->
+        <ImageButton
+            android:id="@+id/btnTtsSettings"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginHorizontal="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_settings"
+            android:contentDescription="Настройки озвучки"
+            android:scaleType="centerInside"
+            app:tint="@android:color/white" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/searchNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:background="#80000000"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/btnNavPrev"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:text="←"
+            android:textSize="20sp"
+            android:textColor="@android:color/white"/>
+
+        <TextView
+            android:id="@+id/navPosition"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"/>
+
+        <Button
+            android:id="@+id/btnNavNext"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:text="→"
+            android:textSize="20sp"
+            android:textColor="@android:color/white"/>
+
+        <Button
+            android:id="@+id/btnNavClose"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:text="X"
+            android:textSize="20sp"
+            android:textColor="@android:color/white"/>
+    </LinearLayout>
+
+</RelativeLayout>

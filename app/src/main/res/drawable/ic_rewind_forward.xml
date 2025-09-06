@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorControlNormal">
+    
+    <!-- Палочка сзади -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M6,6 v12 h-2 v-12 z" />
+    
+    <!-- Стрелка вправо -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M8,6 L18,12 L8,18 z" />
+        
+</vector>
