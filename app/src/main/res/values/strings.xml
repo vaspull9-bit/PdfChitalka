@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">PDFChitalka</string>
+    <string name="menu_load">Загрузить PDF</string>
+    <string name="menu_copy">Копировать текст</string>
+    <string name="menu_save">Сохранить PDF</string>
+    <string name="menu_share">Поделиться</string>
+    <string name="menu_speak">Озвучить</string>
+    <string name="menu_stop">Стоп</string>
+    <string name="menu_pause">Пауза</string>
+    <string name="menu_about">О программе</string>
+
+    <!-- Сообщения о разрешениях -->
+    <string name="permission_required">Для работы с PDF файлами необходимо предоставить разрешения на доступ к медиа</string>
+    <string name="partial_access_warning">Предоставлен частичный доступ к медиа. Для полной функциональности предоставьте полный доступ в настройках.</string>
+    <string name="permission_granted">Разрешения предоставлены</string>
+    <string name="permission_denied">Для полной функциональности нужны все разрешения</string>
+    <string name="default_pdf_text">Загрузите PDF файл для просмотра текста\n\nДля загрузки нажмите кнопку \'Загрузить PDF\' или откройте файл через проводник</string>
+    <string name="loading_pdf_text">Загрузка PDF файла...</string>
+
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Widget.AppCompat.Button.Borderless.Colored" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:textColor">@color/md_theme_light_primary</item>
+        <item name="android:drawableTint">@color/md_theme_light_primary</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+    </style>
+</resources>

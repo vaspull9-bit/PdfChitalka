@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp"
+    tools:context=".MainActivity">
+
+    <!-- AppBar с названием и кнопкой информации -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Иконка PDF слева -->
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_pdf"
+                android:contentDescription="PDF"
+                android:layout_marginEnd="8dp" />
+
+            <!-- Название приложения -->
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="PdfChitalka"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white" />
+
+            <!-- Кнопка "О компании" -->
+            <ImageButton
+                android:id="@+id/btnAbout"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_info_circle"
+                android:contentDescription="О компании"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="@android:color/white" />
+
+        </LinearLayout>
+    </androidx.appcompat.widget.Toolbar>
+
+    <!-- Панель кнопок управления -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:background="?attr/colorPrimarySurface">
+
+        <!-- Первая строка кнопок -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/btnLoadPdf"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Загрузить PDF"
+                android:layout_margin="4dp"
+                android:drawableStart="@drawable/ic_baseline_file_open_24"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored" />
+
+            <Button
+                android:id="@+id/btnSavePdf"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Сохранить"
+                android:layout_margin="4dp"
+                android:drawableStart="@drawable/ic_baseline_save_24"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored" />
+
+        </LinearLayout>
+
+        <!-- Вторая строка кнопок -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/btnCopyText"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Копировать"
+                android:layout_margin="4dp"
+                android:drawableStart="@drawable/ic_baseline_content_copy_24"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored" />
+
+            <Button
+                android:id="@+id/btnSharePdf"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Поделиться"
+                android:layout_margin="4dp"
+                android:drawableStart="@drawable/ic_baseline_share_24"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored" />
+
+        </LinearLayout>
+
+        <!-- Третья строка кнопок (озвучивание) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/btnSpeakText"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="@string/menu_speak"
+                android:layout_margin="4dp"
+                android:drawableStart="@drawable/ic_baseline_volume_up_24"
+                android:drawablePadding="8dp"
+                android:gravity="center"
+                android:minHeight="48dp"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:enabled="false" />
+
+            <Button
+                android:id="@+id/btnStopSpeech"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="@string/menu_stop"
+                android:layout_margin="4dp"
+                android:drawableStart="@drawable/ic_baseline_stop_24"
+                android:drawablePadding="8dp"
+                android:gravity="center"
+                android:minHeight="48dp"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:enabled="false" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Область текста PDF с прогрессом загрузки -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="8dp">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/pdfTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Загрузите PDF файл для просмотра текста\n\nДля загрузки нажмите кнопку 'Загрузить PDF' или откройте файл через проводник"
+                android:textSize="14sp"
+                android:padding="12dp"
+                android:lineSpacingMultiplier="1.2"
+                android:background="@android:drawable/edit_text"
+                android:textIsSelectable="true" />
+
+        </ScrollView>
+
+    </RelativeLayout>
+
+</LinearLayout>
