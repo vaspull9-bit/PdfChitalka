@@ -515,18 +515,24 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     override fun onResume() {
         super.onResume()
 
-        // Восстанавливаем правильное отображение после паузы
-        if (isTextModeActive && isTextPdf) {
-            binding.pdfTextView.visibility = View.VISIBLE
-            binding.pdfImageView.visibility = View.GONE
-        } else {
-            binding.pdfImageView.visibility = View.VISIBLE
-            binding.pdfTextView.visibility = View.GONE
-        }
+        runOnUiThread {
+            // Восстанавливаем правильное отображение
+            if (isSpeaking || isPaused) {
+                // Если озвучка активна - показываем ТЕКСТ
+                if (currentTextContent.isNotEmpty()) {
+                    binding.pdfTextView.text = currentTextContent
+                    binding.pdfTextView.visibility = View.VISIBLE
+                    binding.pdfImageView.visibility = View.GONE
+                }
+            } else {
+                // Если озвучка выключена - показываем ГРАФИКУ
+                binding.pdfImageView.visibility = View.VISIBLE
+                binding.pdfTextView.visibility = View.GONE
+            }
 
-        // Восстанавливаем масштаб
-        binding.pdfImageView.scaleX = currentScale
-        binding.pdfImageView.scaleY = currentScale
+            binding.pdfImageView.scaleX = currentScale
+            binding.pdfImageView.scaleY = currentScale
+        }
     }
 
     // Обновляем слушатель TTS для автоматического пролистывания
@@ -992,18 +998,24 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
     // ПЕРЕПИСЫВАЕМ функции запуска озвучки
-    // ВОССТАНАВЛИВАЕМ полностью рабочие функции озвучки из v5.3.16
     private fun startSpeechFullBook(fromCurrentPage: Boolean = false) {
-        if (!isTextPdf) return
+        if (!isTextPdf) {
+            Toast.makeText(this, "Текст не готов для озвучки", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (currentTextContent.isEmpty()) {
+            Toast.makeText(this, "Текст пустой", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         isReadingFullBook = true
         isSpeaking = true
         isPaused = false
 
-        // ВКЛЮЧАЕМ ТЕКСТОВЫЙ РЕЖИМ для озвучки
-        binding.pdfTextView.text = currentTextContent
-        binding.pdfTextView.visibility = View.VISIBLE
-        binding.pdfImageView.visibility = View.GONE
+        // НЕ ПЕРЕКЛЮЧАЕМ НА ТЕКСТОВЫЙ VIEW! Оставляем графический вид
+        // binding.pdfTextView.visibility = View.GONE
+        // binding.pdfImageView.visibility = View.VISIBLE
 
         // Определяем начальную позицию
         currentSpeechPosition = if (fromCurrentPage) {
@@ -1024,16 +1036,23 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun speakPage() {
-        if (!isTextPdf) return
+        if (!isTextPdf) {
+            Toast.makeText(this, "Текст не готов для озвучки", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (currentTextContent.isEmpty()) {
+            Toast.makeText(this, "Текст пустой", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         isReadingFullBook = false
         isSpeaking = true
         isPaused = false
 
-        // ВКЛЮЧАЕМ ТЕКСТОВЫЙ РЕЖИМ для озвучки
-        binding.pdfTextView.text = currentTextContent
-        binding.pdfTextView.visibility = View.VISIBLE
-        binding.pdfImageView.visibility = View.GONE
+        // НЕ ПЕРЕКЛЮЧАЕМ НА ТЕКСТОВЫЙ VIEW! Оставляем графический вид
+        // binding.pdfTextView.visibility = View.GONE
+        // binding.pdfImageView.visibility = View.VISIBLE
 
         // Начинаем с начала текущей страницы
         currentSpeechPosition = getTextPositionForPage(currentPage)
@@ -1075,6 +1094,12 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         if (startPos >= currentTextContent.length) {
             stopSpeech()
             return
+        }
+
+        // ВАЖНО: Убеждаемся что текстовый view видим перед озвучкой
+        if (binding.pdfTextView.visibility != View.VISIBLE) {
+            binding.pdfTextView.visibility = View.VISIBLE
+            binding.pdfImageView.visibility = View.GONE
         }
 
         val textToRead = currentTextContent.substring(startPos)
@@ -1128,18 +1153,24 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     // ПРОСТОЙ И РАБОЧИЙ автопролистывание из 5.3.16
     private fun autoScrollToTextPosition(position: Int) {
-        if (!ttsSettings.showCurrentPage) return
-
-        runOnUiThread {
-            try {
-                if (binding.pdfTextView.visibility == View.VISIBLE && position < currentTextContent.length) {
-                    // Простой и надежный скроллинг
-                    binding.textScrollView.scrollTo(0, position)
-                }
-            } catch (e: Exception) {
-                Log.e("AutoScroll", "Ошибка скролла: ${e.message}")
-            }
-        }
+//        if (!ttsSettings.showCurrentPage) return
+//
+//        runOnUiThread {
+//            try {
+//                // ВАЖНО: Принудительно обновляем текст и убеждаемся что он видим
+//                if (binding.pdfTextView.visibility != View.VISIBLE) {
+//                    binding.pdfTextView.text = currentTextContent
+//                    binding.pdfTextView.visibility = View.VISIBLE
+//                    binding.pdfImageView.visibility = View.GONE
+//                }
+//
+//                if (position < currentTextContent.length) {
+//                    binding.textScrollView.scrollTo(0, position)
+//                }
+//            } catch (e: Exception) {
+//                Log.e("AutoScroll", "Ошибка скролла: ${e.message}")
+//            }
+//        }
     }
 
     // ЗАМЕНИТЕ функцию stopSpeech:
@@ -1147,15 +1178,15 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         textToSpeech?.stop()
         isSpeaking = false
         isPaused = false
-        lastSpeechPosition = currentSpeechPosition // Сохраняем позицию
+        lastSpeechPosition = currentSpeechPosition
 
-        // ВОЗВРАЩАЕМ ГРАФИЧЕСКИЙ РЕЖИМ
-        isTextModeActive = false
-        binding.pdfImageView.visibility = View.VISIBLE
-        binding.pdfTextView.visibility = View.GONE
-
-        updatePlayerButtons()
-        hidePlayerPanel()
+        // ВАЖНО: Плавно возвращаем графический вид
+        runOnUiThread {
+            binding.pdfImageView.visibility = View.VISIBLE
+            binding.pdfTextView.visibility = View.GONE
+            updatePlayerButtons()
+            hidePlayerPanel()
+        }
 
         Toast.makeText(this, "Озвучка остановлена", Toast.LENGTH_SHORT).show()
     }
@@ -1621,7 +1652,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun showAboutDialog() {
         val aboutText = """
-            PdfChitalka v5.3.24
+            PdfChitalka v5.3.27
             Полнофункциональный просмотрщик PDF
             
             Особенности:
