@@ -226,13 +226,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     // ИСПРАВЛЯЕМ функцию showPage - убираем остановку озвучки
     private fun showPage(pageIndex: Int) {
         try {
-            // ПРЕРЫВАЕМ ОЗВУЧКУ ТОЛЬКО ПРИ РУЧНОМ ПЕРЕЛИСТЫВАНИИ
             if (isSpeaking || isPaused) {
-                textToSpeech?.stop()
-                isSpeaking = false
-                isPaused = false
-                // НЕ СКРЫВАЕМ ПЛЕЕР - только останавливаем озвучку
-                updatePlayerButtons()
+                stopSpeech()
             }
 
             pdfRenderer?.let { renderer ->
@@ -241,7 +236,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
                     page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
 
+                    // Всегда показываем графический вид
                     binding.pdfImageView.setImageBitmap(bitmap)
+                    binding.pdfImageView.visibility = View.VISIBLE
+                    binding.pdfTextView.visibility = View.GONE
+
                     currentPage = pageIndex
                     page.close()
 
@@ -515,24 +514,13 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     override fun onResume() {
         super.onResume()
 
-        runOnUiThread {
-            // Восстанавливаем правильное отображение
-            if (isSpeaking || isPaused) {
-                // Если озвучка активна - показываем ТЕКСТ
-                if (currentTextContent.isNotEmpty()) {
-                    binding.pdfTextView.text = currentTextContent
-                    binding.pdfTextView.visibility = View.VISIBLE
-                    binding.pdfImageView.visibility = View.GONE
-                }
-            } else {
-                // Если озвучка выключена - показываем ГРАФИКУ
-                binding.pdfImageView.visibility = View.VISIBLE
-                binding.pdfTextView.visibility = View.GONE
-            }
+        // Всегда показываем графический вид
+        binding.pdfImageView.visibility = View.VISIBLE
+        binding.pdfTextView.visibility = View.GONE
 
-            binding.pdfImageView.scaleX = currentScale
-            binding.pdfImageView.scaleY = currentScale
-        }
+        // Восстанавливаем масштаб
+        binding.pdfImageView.scaleX = currentScale
+        binding.pdfImageView.scaleY = currentScale
     }
 
     // Обновляем слушатель TTS для автоматического пролистывания
@@ -1096,12 +1084,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             return
         }
 
-        // ВАЖНО: Убеждаемся что текстовый view видим перед озвучкой
-        if (binding.pdfTextView.visibility != View.VISIBLE) {
-            binding.pdfTextView.visibility = View.VISIBLE
-            binding.pdfImageView.visibility = View.GONE
-        }
-
         val textToRead = currentTextContent.substring(startPos)
         val maxChunkSize = 4000
         val chunk = if (textToRead.length > maxChunkSize) {
@@ -1112,9 +1094,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         val nextPosition = startPos + chunk.length
 
-        // Автопролистывание перед началом озвучки
+        // Автопролистывание страниц (если нужно)
         if (ttsSettings.showCurrentPage) {
-            autoScrollToTextPosition(startPos)
+            // В графическом режиме можно реализовать перелистывание страниц
+            // на основе позиции в тексте, но это сложно
         }
 
         textToSpeech?.speak(chunk, TextToSpeech.QUEUE_FLUSH, null, "speak_$nextPosition")
@@ -1180,13 +1163,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         isPaused = false
         lastSpeechPosition = currentSpeechPosition
 
-        // ВАЖНО: Плавно возвращаем графический вид
-        runOnUiThread {
-            binding.pdfImageView.visibility = View.VISIBLE
-            binding.pdfTextView.visibility = View.GONE
-            updatePlayerButtons()
-            hidePlayerPanel()
-        }
+        // Графический вид уже visible, ничего не меняем
+        updatePlayerButtons()
+        hidePlayerPanel()
 
         Toast.makeText(this, "Озвучка остановлена", Toast.LENGTH_SHORT).show()
     }
