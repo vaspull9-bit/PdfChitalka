@@ -1,8 +1,7 @@
 <resources>
     <string name="app_name">PDFChitalka</string>
     <string name="menu_load">Загрузить PDF</string>
-    <string name="menu_copy">Копировать текст</string>
-    <string name="menu_save">Сохранить PDF</string>
+        <string name="menu_save">Сохранить PDF</string>
     <string name="menu_share">Поделиться</string>
     <string name="menu_speak">Озвучить</string>
     <string name="menu_stop">Стоп</string>
