@@ -15,92 +15,109 @@
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="4dp">
 
-            <!-- Название приложения -->
+            <!-- Название приложения (компактное) -->
             <TextView
                 android:id="@+id/toolbar_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="8dp"
-                android:text="PdfChitalka"
-                android:textColor="?android:attr/textColorPrimaryInverse"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:text="PDF"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
 
-            <!-- Кнопки управления -->
-
-
+            <!-- Кнопка поиска -->
             <ImageButton
                 android:id="@+id/btnSearch"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_toRightOf="@+id/toolbar_title"
-                android:layout_centerVertical="true"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:layout_marginLeft="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Поиск"
                 android:src="@drawable/ic_baseline_search_24"
-                app:tint="?android:attr/textColorPrimaryInverse" />
+                app:tint="@android:color/white" />
 
             <!-- Индикатор страниц -->
             <TextView
                 android:id="@+id/pageIndicator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@+id/btnSearch"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="16dp"
+                android:layout_marginLeft="8dp"
                 android:text="1/1"
-                android:textColor="?android:attr/textColorPrimaryInverse"
-                android:textSize="14sp"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
                 android:visibility="gone" />
 
-            <!-- Кнопки навигации -->
+            <!-- Кнопки навигации - КОМПАКТНЫЕ -->
+            <ImageButton
+                android:id="@+id/btnFirstPage"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginLeft="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="В начало"
+                android:src="@drawable/ic_first_page"
+                app:tint="@android:color/white"
+                android:visibility="visible" />
+
             <ImageButton
                 android:id="@+id/btnPrevPage"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_toRightOf="@+id/pageIndicator"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="16dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Предыдущая страница"
-            android:src="@drawable/ic_baseline_arrow_back_24"
-            app:tint="?android:attr/textColorPrimaryInverse"
-            android:visibility="gone" />
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginLeft="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Назад"
+                android:src="@drawable/ic_baseline_arrow_back_24"
+                app:tint="@android:color/white"
+                android:visibility="visible" />
 
             <ImageButton
                 android:id="@+id/btnNextPage"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_toRightOf="@+id/btnPrevPage"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="8dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginLeft="2dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Следующая страница"
+                android:contentDescription="Вперед"
                 android:src="@drawable/ic_baseline_arrow_forward_24"
-                app:tint="?android:attr/textColorPrimaryInverse"
-                android:visibility="gone" />
+                app:tint="@android:color/white"
+                android:visibility="visible" />
 
-            <!-- Кнопка меню -->
+            <ImageButton
+                android:id="@+id/btnLastPage"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginLeft="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="В конец"
+                android:src="@drawable/ic_last_page"
+                app:tint="@android:color/white"
+                android:visibility="visible" />
+
+            <!-- Гибкое пространство -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <!-- Кнопка меню (теперь видна!) -->
             <ImageButton
                 android:id="@+id/btnMenu"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="8dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Меню"
                 android:src="@drawable/ic_baseline_more_vert_24"
-                app:tint="?android:attr/textColorPrimaryInverse" />
+                app:tint="@android:color/white" />
 
-        </RelativeLayout>
+        </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
     <!-- Контейнер для PDF просмотра -->
@@ -115,8 +132,8 @@
             android:id="@+id/pdfImageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="fitXY"
-            android:visibility="gone" />
+            android:scaleType="fitCenter"
+            android:visibility="visible" />
 
         <!-- Прогресс-бар -->
         <ProgressBar
@@ -124,19 +141,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="gone" />  <!-- ← ИЗМЕНИ НА gone -->
-
-        <!-- Текст для озвучки (скрытый) -->
-        <TextView
-            android:id="@+id/pdfTextViewHidden"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            tools:text="Скрытый текст для TTS" />
+            android:visibility="gone" />
 
     </FrameLayout>
 
-    <!-- Текстовое представление для поиска и синхронизации -->
+    <!-- Текстовое представление для поиска -->
     <ScrollView
         android:id="@+id/textScrollView"
         android:layout_width="match_parent"
@@ -180,19 +189,16 @@
             android:orientation="horizontal"
             android:gravity="center">
 
-            <!-- Кнопка "Назад" -->
             <ImageButton
                 android:id="@+id/btnPrevSearch"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:layout_marginHorizontal="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_prev"
                 android:contentDescription="Предыдущий результат"
-                android:scaleType="centerInside"
                 app:tint="#FF000000"/>
 
-            <!-- Счетчик результатов с номером страницы -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -205,7 +211,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0/0"
-                    android:textSize="14sp"
+                    android:textSize="12sp"
                     android:textColor="#FF000000"/>
 
                 <TextView
@@ -213,39 +219,131 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Страница: 0"
-                    android:textSize="12sp"
+                    android:textSize="10sp"
                     android:textColor="#FF666666"
                     android:clickable="true"
                     android:focusable="true"
-                    android:padding="4dp"
+                    android:padding="2dp"
                     android:background="?attr/selectableItemBackground"/>
             </LinearLayout>
 
-            <!-- Кнопка "Вперед" -->
             <ImageButton
                 android:id="@+id/btnNextSearch"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:layout_marginHorizontal="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_next"
                 android:contentDescription="Следующий результат"
-                android:scaleType="centerInside"
                 app:tint="#FF000000"/>
 
-            <!-- Кнопка "Закрыть" -->
             <ImageButton
                 android:id="@+id/btnCloseSearch"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:layout_marginHorizontal="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_close"
                 android:contentDescription="Закрыть поиск"
-                android:scaleType="centerInside"
                 app:tint="#FF000000"/>
 
         </LinearLayout>
+    </LinearLayout>
+
+    <!-- Панель управления озвучкой -->
+    <LinearLayout
+        android:id="@+id/playerPanel"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:background="#CC000000"
+        android:paddingHorizontal="4dp"
+        android:paddingVertical="6dp"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:gravity="center">
+
+        <!-- Компактные кнопки плеера -->
+        <ImageButton
+            android:id="@+id/btnRewindToStart"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginHorizontal="2dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_rewind_to_start"
+            android:contentDescription="В начало"
+            app:tint="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/btnRewindBack"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginHorizontal="2dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_rewind_back"
+            android:contentDescription="Назад"
+            app:tint="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/btnPause"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_pause"
+            android:contentDescription="Пауза"
+            app:tint="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/btnStop"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginHorizontal="2dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_stop"
+            android:contentDescription="Стоп"
+            app:tint="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/btnPlay"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_play"
+            android:contentDescription="Воспроизвести"
+            app:tint="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/btnRewindForward"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginHorizontal="2dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_rewind_forward"
+            android:contentDescription="Вперед"
+            app:tint="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/btnRewindToEnd"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginHorizontal="2dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_rewind_to_end"
+            android:contentDescription="В конец"
+            app:tint="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/btnTtsSettings"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_settings"
+            android:contentDescription="Настройки озвучки"
+            app:tint="@android:color/white" />
+
     </LinearLayout>
 
     <!-- Кнопки управления зумом -->
@@ -255,185 +353,39 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_above="@+id/playerPanel"
-        android:layout_margin="16dp"
+        android:layout_margin="12dp"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:background="#80000000"
+        android:padding="2dp"
+        android:visibility="visible">
 
         <ImageButton
             android:id="@+id/btnZoomIn"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:src="@drawable/ic_zoom_in"
             android:contentDescription="Увеличить"
-            android:background="?attr/selectableItemBackgroundBorderless" />
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@android:color/white" />
 
         <ImageButton
             android:id="@+id/btnZoomOut"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:src="@drawable/ic_zoom_out"
             android:contentDescription="Уменьшить"
-            android:background="?attr/selectableItemBackgroundBorderless" />
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@android:color/white" />
 
         <ImageButton
             android:id="@+id/btnResetZoom"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:src="@drawable/ic_zoom_reset"
             android:contentDescription="Сбросить зум"
-            android:background="?attr/selectableItemBackgroundBorderless" />
-
-    </LinearLayout>
-
-    <!-- Панель управления озвучкой -->
-    <LinearLayout
-        android:id="@+id/playerPanel"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_alignParentBottom="true"
-        android:background="#CC000000"
-        android:paddingHorizontal="4dp"
-        android:paddingVertical="8dp"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        android:gravity="center">
-
-        <!-- Первая группа: навигация -->
-        <ImageButton
-            android:id="@+id/btnRewindToStart"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginHorizontal="4dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_rewind_to_start"
-            android:contentDescription="В начало"
-            android:scaleType="centerInside"
             app:tint="@android:color/white" />
 
-        <ImageButton
-            android:id="@+id/btnRewindBack"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginHorizontal="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_rewind_back"
-            android:contentDescription="Назад"
-            android:scaleType="centerInside"
-            app:tint="@android:color/white" />
-
-        <!-- Вторая группа: управление воспроизведением -->
-        <ImageButton
-            android:id="@+id/btnPause"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginHorizontal="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_pause"
-            android:contentDescription="Пауза"
-            android:scaleType="centerInside"
-            app:tint="@android:color/white" />
-
-        <ImageButton
-            android:id="@+id/btnStop"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginHorizontal="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_stop"
-            android:contentDescription="Стоп"
-            android:scaleType="centerInside"
-            app:tint="@android:color/white" />
-
-        <ImageButton
-            android:id="@+id/btnPlay"
-            android:layout_width="36dp"
-            android:layout_height="44dp"
-            android:layout_marginHorizontal="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_play"
-            android:contentDescription="Воспроизвести"
-            android:scaleType="centerInside"
-            app:tint="@android:color/white" />
-
-        <!-- Третья группа: навигация -->
-        <ImageButton
-            android:id="@+id/btnRewindForward"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginHorizontal="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_rewind_forward"
-            android:contentDescription="Вперед"
-            android:scaleType="centerInside"
-            app:tint="@android:color/white" />
-
-        <ImageButton
-            android:id="@+id/btnRewindToEnd"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginHorizontal="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_rewind_to_end"
-            android:contentDescription="В конец"
-            android:scaleType="centerInside"
-            app:tint="@android:color/white" />
-
-        <!-- Настройки -->
-        <ImageButton
-            android:id="@+id/btnTtsSettings"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginHorizontal="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_settings"
-            android:contentDescription="Настройки озвучки"
-            android:scaleType="centerInside"
-            app:tint="@android:color/white" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/searchNavigation"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_alignParentBottom="true"
-        android:background="#80000000"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:visibility="gone">
-
-        <Button
-            android:id="@+id/btnNavPrev"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:text="←"
-            android:textSize="20sp"
-            android:textColor="@android:color/white"/>
-
-        <TextView
-            android:id="@+id/navPosition"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"/>
-
-        <Button
-            android:id="@+id/btnNavNext"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:text="→"
-            android:textSize="20sp"
-            android:textColor="@android:color/white"/>
-
-        <Button
-            android:id="@+id/btnNavClose"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:text="X"
-            android:textSize="20sp"
-            android:textColor="@android:color/white"/>
     </LinearLayout>
 
 </RelativeLayout>

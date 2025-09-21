@@ -20,4 +20,8 @@
     <string name="show_graphic_during_tts">Показывать графическую страницу при озвучке</string>
     <string name="tts_from_current_page">Озвучить с текущей страницы</string>
     <string name="tts_whole_book">Озвучить всю книгу</string>
+    <string name="page_indicator">%1$d/%2$d</string>
+    <string name="search_position">%1$d/%2$d</string>
+    <string name="search_page">Страница: %d</string>
+    <string name="search_results_count">Найдено %d совпадений</string>
 </resources>

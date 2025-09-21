@@ -13,8 +13,8 @@ android {
         applicationId = "com.example.pdfchitalka"
         minSdk = 23
         targetSdk = 36
-        versionCode = 5
-        versionName = "5.3.27"
+        versionCode = 6
+        versionName = "6.4.14"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.gson)
     implementation(libs.pdfbox.android)
+    implementation(libs.androidx.core.ktx)
 
     // Тестирование
     testImplementation(libs.junit)
