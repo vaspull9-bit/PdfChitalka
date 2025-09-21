@@ -1,4 +1,6 @@
-// PdfChitalka v6.5.0 21/09/2025
+// PdfChitalka v6.5.2 21/09/2025 18:07 Стабильная
+// Чего нет: Женского голоса нет, повторений страницы нет, показа страницы чтения нет.
+// Все остальное - есть и мы пускаем эту версия в продакшн
 
     package com.example.pdfchitalka
 
@@ -121,6 +123,23 @@
                 Toast.makeText(this, "Для полной функциональности нужны все разрешения", Toast.LENGTH_SHORT).show()
             }
         }
+        // Добавить в переменные класса:
+        private var currentTranslateX: Float = 0f
+        private var currentTranslateY: Float = 0f
+        private var isScaling: Boolean = false
+        private var lastTouchX: Float = 0f
+        private var lastTouchY: Float = 0f
+
+
+        ////////////////////////////////////////////////////////////////////////
+        //
+        //
+        //                        ФУНКЦИИ
+        //
+        //
+        ///////////////////////////////////////////////////////////////////////
+
+
 
         @SuppressLint("ClickableViewAccessibility")
         override fun onCreate(savedInstanceState: Bundle?) {
@@ -144,19 +163,50 @@
             binding.btnResetZoom.setOnClickListener { resetZoom() }
 
             // Жесты для листания страниц
+            // Заменяем текущий setOnTouchListener на этот:
             binding.pdfImageView.setOnTouchListener { v, event ->
                 scaleDetector.onTouchEvent(event)
 
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
                         startY = event.y
+                        lastTouchX = event.x
+                        lastTouchY = event.y
+
+                        // Сбрасываем флаг масштабирования при новом касании
+                        if (!scaleDetector.isInProgress) {
+                            isScaling = false
+                        }
                         true
                     }
+
+                    MotionEvent.ACTION_MOVE -> {
+                        if (!scaleDetector.isInProgress && !isScaling) {
+                            // Сдвиг изображения
+                            val deltaX = event.x - lastTouchX
+                            val deltaY = event.y - lastTouchY
+
+                            currentTranslateX += deltaX
+                            currentTranslateY += deltaY
+
+                            // Ограничиваем сдвиг чтобы не уйти слишком далеко
+                            limitTranslation()
+
+                            applyImageTransform()
+
+                            lastTouchX = event.x
+                            lastTouchY = event.y
+                        }
+                        true
+                    }
+
+
                     MotionEvent.ACTION_UP -> {
                         val endY = event.y
                         val deltaY = startY - endY
 
-                        if (abs(deltaY) > 100) {
+                        // Обрабатываем свайп только если не было масштабирования и сдвига
+                        if (abs(deltaY) > 100 && !isScaling && currentTranslateX == 0f && currentTranslateY == 0f) {
                             if (isSpeaking || isPaused) {
                                 if (deltaY > 0) {
                                     showNextPage()
@@ -173,9 +223,12 @@
                         }
                         true
                     }
+
                     else -> false
                 }
             }
+
+
 
             // Пустой клик для accessibility
             binding.pdfImageView.setOnClickListener { }
@@ -193,6 +246,31 @@
             setupUI()
             handleIntent(intent)
             applyTtsSettings()
+        }
+
+// Добавляем функции для ограничения сдвига и применения трансформации:
+        private fun limitTranslation() {
+            val scaledWidth = binding.pdfImageView.width * currentScale
+            val scaledHeight = binding.pdfImageView.height * currentScale
+            val viewWidth = binding.pdfImageView.width
+            val viewHeight = binding.pdfImageView.height
+
+            // Ограничиваем сдвиг по X
+            val maxTranslateX = max(0f, (scaledWidth - viewWidth) / 2)
+            val minTranslateX = -maxTranslateX
+            currentTranslateX = currentTranslateX.coerceIn(minTranslateX, maxTranslateX)
+
+            // Ограничиваем сдвиг по Y
+            val maxTranslateY = max(0f, (scaledHeight - viewHeight) / 2)
+            val minTranslateY = -maxTranslateY
+            currentTranslateY = currentTranslateY.coerceIn(minTranslateY, maxTranslateY)
+        }
+
+        private fun applyImageTransform() {
+            binding.pdfImageView.translationX = currentTranslateX
+            binding.pdfImageView.translationY = currentTranslateY
+            binding.pdfImageView.scaleX = currentScale
+            binding.pdfImageView.scaleY = currentScale
         }
 
         override fun onDestroy() {
@@ -223,6 +301,7 @@
             binding.pdfImageView.scaleX = currentScale
             binding.pdfImageView.scaleY = currentScale
             updatePlayerVisibility()
+            updateSpeakButtonState() // ← ДОБАВИТЬ ЗДЕСЬ
         }
 
         override fun onInit(status: Int) {
@@ -294,7 +373,7 @@
                 }
             }
 
-            // ИСПРАВЛЕНИЕ 2: Убираем лишнюю кнопку ПУСК и исправляем логику плеера
+            // ИСПРАВЛЕНИЕ: Кнопка паузы теперь работает и как плей
             binding.btnPause.setOnClickListener {
                 if (isSpeaking) {
                     textToSpeech?.stop()
@@ -304,7 +383,6 @@
                     updatePlayerVisibility()
                     Toast.makeText(this, "Пауза", Toast.LENGTH_SHORT).show()
                 } else if (isPaused) {
-                    // ИСПРАВЛЕНИЕ: Кнопка паузы теперь работает и как плей
                     isSpeaking = true
                     isPaused = false
                     speakFromPosition(currentSpeechPosition)
@@ -316,8 +394,45 @@
 
             binding.btnStop.setOnClickListener { stopSpeech() }
 
-            // ИСПРАВЛЕНИЕ 2: Убираем отдельную кнопку Play - теперь одна кнопка Pause/Play
+            // ИСПРАВЛЕНИЕ: Убираем отдельную кнопку Play - теперь одна кнопка Pause/Play
             binding.btnPlay.visibility = View.GONE
+
+            // Кнопки навигации в тулбаре
+            binding.btnFirstPage.setOnClickListener {
+                if (isSpeaking || isPaused) {
+                    showPage(0)
+                    currentSpeechPosition = getTextPositionForPage(0)
+                    speakFromPosition(currentSpeechPosition)
+                } else {
+                    showPage(0)
+                }
+            }
+
+            binding.btnLastPage.setOnClickListener {
+                val lastPage = totalPages - 1
+                if (isSpeaking || isPaused) {
+                    showPage(lastPage)
+                    currentSpeechPosition = getTextPositionForPage(lastPage)
+                    speakFromPosition(currentSpeechPosition)
+                } else {
+                    showPage(lastPage)
+                }
+            }
+
+            // Кнопка репродуктора - ВЫНЕСЕНА ОТДЕЛЬНО!
+            binding.btnSpeakToolbar.setOnClickListener {
+                if (currentPdfFile == null) {
+                    Toast.makeText(this, "Сначала загрузите PDF файл", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                // Проверяем готовность текста для озвучки
+                if (currentTextContent.isNotEmpty() && currentTextContent.length > 100) {
+                    showSpeechOptionsDialog()
+                } else {
+                    Toast.makeText(this, "Текст еще не готов для озвучки", Toast.LENGTH_SHORT).show()
+                }
+            }
 
             binding.btnRewindForward.setOnClickListener {
                 if (isSpeaking || isPaused) {
@@ -342,6 +457,55 @@
 
             binding.btnTtsSettings.setOnClickListener { showTtsSettingsDialog() }
         }
+
+        ///////////////////////////////////////////////////
+        //
+        //                       перейти на страницу
+        //
+        //
+        ///////////////////////////////////////////////
+
+        private fun showGotoPageDialog() {
+            if (totalPages <= 1) {
+                Toast.makeText(this, "Документ содержит только 1 страницу", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            val input = EditText(this).apply {
+                hint = "Введите номер страницы (1-$totalPages)"
+                inputType = android.text.InputType.TYPE_CLASS_NUMBER
+            }
+
+            AlertDialog.Builder(this)
+                .setTitle("Перейти на страницу")
+                .setView(input)
+                .setPositiveButton("Перейти") { _, _ ->
+                    val pageNum = input.text.toString().toIntOrNull()
+                    if (pageNum != null && pageNum in 1..totalPages) {
+                        val targetPage = pageNum - 1
+                        if (isSpeaking || isPaused) {
+                            showPage(targetPage)
+                            currentSpeechPosition = getTextPositionForPage(targetPage)
+                            speakFromPosition(currentSpeechPosition)
+                        } else {
+                            showPage(targetPage)
+                        }
+                        Toast.makeText(this, "Переход на страницу $pageNum", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "Неверный номер страницы", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .setNegativeButton("Отмена", null)
+                .show()
+        }
+
+
+        ///////////////////////////////////////////////////
+        //
+        //                       Озвучка
+        //
+        //
+        ///////////////////////////////////////////////
 
         private fun loadTtsSettings() {
             ttsSettings = TtsSettings(
@@ -541,6 +705,7 @@
                     runOnUiThread {
                         currentTextContent = fullText
                         isTextPdf = currentTextContent.length > 100
+                        updateSpeakButtonState() // ← ДОБАВИТЬ ЗДЕСЬ
 
                         if (isTextPdf) {
                             Toast.makeText(this, "Текст готов для озвучки", Toast.LENGTH_SHORT).show()
@@ -653,19 +818,27 @@
         }
 
         private fun updatePageIndicator() {
-            binding.pageIndicator.text = resources.getString(R.string.page_indicator, currentPage + 1, totalPages)
+            val hasPdfLoaded = currentPdfFile != null
+            val hasMultiplePages = totalPages > 1
 
-            if (totalPages > 1) {
-                binding.pageIndicator.visibility = View.VISIBLE
-                binding.btnPrevPage.visibility = View.VISIBLE
-                binding.btnNextPage.visibility = View.VISIBLE
-                binding.btnPrevPage.isEnabled = currentPage > 0
-                binding.btnNextPage.isEnabled = currentPage < totalPages - 1
-            } else {
-                binding.pageIndicator.visibility = View.GONE
-                binding.btnPrevPage.visibility = View.GONE
-                binding.btnNextPage.visibility = View.GONE
-            }
+            binding.pageIndicator.text = resources.getString(R.string.page_indicator, currentPage + 1, totalPages)
+            binding.pageIndicator.visibility = if (hasMultiplePages) View.VISIBLE else View.GONE
+
+            // Кнопки навигации
+            binding.btnPrevPage.visibility = if (hasMultiplePages) View.VISIBLE else View.GONE
+            binding.btnNextPage.visibility = if (hasMultiplePages) View.VISIBLE else View.GONE
+            binding.btnFirstPage.visibility = if (hasMultiplePages) View.VISIBLE else View.GONE
+            binding.btnLastPage.visibility = if (hasMultiplePages) View.VISIBLE else View.GONE
+
+            // Кнопка репродуктора - показываем если есть PDF, а isTextPdf обновим позже
+            binding.btnSpeakToolbar.visibility = if (hasPdfLoaded) View.VISIBLE else View.GONE
+            binding.btnSpeakToolbar.isEnabled = isTextPdf // включаем только если текстовый PDF
+
+            // Состояние кнопок
+            binding.btnPrevPage.isEnabled = currentPage > 0
+            binding.btnNextPage.isEnabled = currentPage < totalPages - 1
+            binding.btnFirstPage.isEnabled = currentPage > 0
+            binding.btnLastPage.isEnabled = currentPage < totalPages - 1
         }
 
         private fun showPreviousPage() {
@@ -678,6 +851,12 @@
             if (currentPage < totalPages - 1) {
                 showPage(currentPage + 1)
             }
+        }
+
+        private fun updateSpeakButtonState() {
+            val hasPdfLoaded = currentPdfFile != null
+            binding.btnSpeakToolbar.visibility = if (hasPdfLoaded) View.VISIBLE else View.GONE
+            binding.btnSpeakToolbar.isEnabled = isTextPdf
         }
 
         private fun startSpeechFullBook(fromCurrentPage: Boolean = false) {
@@ -881,26 +1060,36 @@
             return (position * totalPages / currentTextContent.length).coerceIn(0, totalPages - 1)
         }
 
+//  Меню озвучки
+private fun showSpeechOptionsDialog() {
+    if (currentPdfFile == null) {
+        Toast.makeText(this, "Сначала загрузите PDF файл", Toast.LENGTH_SHORT).show()
+        return
+    }
 
-        private fun showSpeechOptionsDialog() {
-            val options = arrayOf(
-                "Озвучить всю книгу с начала",
-                "Озвучить с текущей страницы до конца",
-                "Озвучить только текущую страницу"
-            )
+    if (currentTextContent.isEmpty() || currentTextContent.length <= 100) {
+        Toast.makeText(this, "Текст еще не готов для озвучки", Toast.LENGTH_SHORT).show()
+        return
+    }
 
-            AlertDialog.Builder(this)
-                .setTitle("Режим озвучки")
-                .setItems(options) { _, which ->
-                    when (which) {
-                        0 -> startSpeechFullBook(false)
-                        1 -> startSpeechFullBook(true)
-                        2 -> speakPage()
-                    }
-                }
-                .setNegativeButton("Отмена", null)
-                .show()
+    val options = arrayOf(
+        "Озвучить всю книгу с начала",
+        "Озвучить с текущей страницы до конца",
+        "Озвучить только текущую страницу"
+    )
+
+    AlertDialog.Builder(this)
+        .setTitle("Режим озвучки")
+        .setItems(options) { _, which ->
+            when (which) {
+                0 -> startSpeechFullBook(false)
+                1 -> startSpeechFullBook(true)
+                2 -> speakPage()
+            }
         }
+        .setNegativeButton("Отмена", null)
+        .show()
+}
 
         private fun showTtsSettingsDialog() {
             val dialogView = layoutInflater.inflate(R.layout.dialog_tts_settings, null)
@@ -971,64 +1160,82 @@
                 .show()
         }
 
-        private fun checkTtsStatus() {
-            val currentLanguage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                textToSpeech?.voice?.locale?.displayLanguage ?: "Не определен"
-            } else {
-                @Suppress("DEPRECATION")
-                textToSpeech?.language?.displayLanguage ?: "Не определен"
-            }
-
-            val status = """
-        Статус TTS: ${if (isTtsInitialized) "Готов" else "Не готов"}
-        Язык: $currentLanguage
-        Скорость: ${ttsSettings.speed}x
-        Режим: ${if (isReadingFullBook) "Всю книгу" else "Текущую страницу"}
-    """.trimIndent()
-
-            AlertDialog.Builder(this)
-                .setTitle("Статус TTS")
-                .setMessage(status)
-                .setPositiveButton("OK", null)
-                .show()
-        }
+//        private fun checkTtsStatus() {
+//            val currentLanguage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//                textToSpeech?.voice?.locale?.displayLanguage ?: "Не определен"
+//            } else {
+//                @Suppress("DEPRECATION")
+//                textToSpeech?.language?.displayLanguage ?: "Не определен"
+//            }
+//
+//            val status = """
+//              Статус TTS: ${if (isTtsInitialized) "Готов" else "Не готов"}
+//              Язык: $currentLanguage
+//              Скорость: ${ttsSettings.speed}x
+//              Режим: ${if (isReadingFullBook) "Всю книгу" else "Текущую страницу"}
+//             """.trimIndent()
+//
+//            AlertDialog.Builder(this)
+//                .setTitle("Статус TTS")
+//                .setMessage(status)
+//                .setPositiveButton("OK", null)
+//                .show()
+//        }
 
         private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-            override fun onScale(detector: ScaleGestureDetector): Boolean {
-                currentScale *= detector.scaleFactor
-                currentScale = max(0.5f, min(currentScale, 5.0f))
-                binding.pdfImageView.scaleX = currentScale
-                binding.pdfImageView.scaleY = currentScale
+            override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+                isScaling = true
                 return true
+            }
+
+            override fun onScale(detector: ScaleGestureDetector): Boolean {
+                val scaleFactor = detector.scaleFactor
+                val oldScale = currentScale
+                currentScale *= scaleFactor
+                currentScale = max(0.5f, min(currentScale, 5.0f))
+
+                // Сбрасываем сдвиг при изменении масштаба
+                if (oldScale != currentScale) {
+                    currentTranslateX = 0f
+                    currentTranslateY = 0f
+                }
+
+                applyImageTransform()
+                return true
+            }
+
+            override fun onScaleEnd(detector: ScaleGestureDetector) {
+                isScaling = false
             }
         }
 
         private fun zoomIn() {
             currentScale = min(currentScale * 1.2f, 5.0f)
-            binding.pdfImageView.scaleX = currentScale
-            binding.pdfImageView.scaleY = currentScale
+            currentTranslateX = 0f
+            currentTranslateY = 0f
+            applyImageTransform()
         }
 
         private fun zoomOut() {
             currentScale = max(currentScale * 0.8f, 0.5f)
-            binding.pdfImageView.scaleX = currentScale
-            binding.pdfImageView.scaleY = currentScale
+            currentTranslateX = 0f
+            currentTranslateY = 0f
+            applyImageTransform()
         }
 
         private fun resetZoom() {
             currentScale = 1.0f
-            binding.pdfImageView.scaleX = currentScale
-            binding.pdfImageView.scaleY = currentScale
-            scaleToFit()
+            currentTranslateX = 0f
+            currentTranslateY = 0f
+            applyImageTransform()
         }
 
         private fun scaleToFit() {
             binding.pdfImageView.scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
-            binding.pdfImageView.translationX = 0f
-            binding.pdfImageView.translationY = 0f
-            binding.pdfImageView.scaleX = 1.0f
-            binding.pdfImageView.scaleY = 1.0f
             currentScale = 1.0f
+            currentTranslateX = 0f
+            currentTranslateY = 0f
+            applyImageTransform()
         }
 
         private fun setupBackPressedHandler() {
@@ -1137,6 +1344,10 @@
                         showSearchDialog()
                         true
                     }
+                    R.id.menu_goto_page -> {
+                        showGotoPageDialog()
+                        true
+                    }
                     R.id.menu_stop -> {
                         stopSpeech()
                         true
@@ -1153,11 +1364,7 @@
                         toggleFullscreen()
                         true
                     }
-                    R.id.menu_tts_settings -> {
-                        showTtsSettingsDialog()
-                        true
-                    }
-                    R.id.menu_about -> {
+                   R.id.menu_about -> {
                         showAboutDialog()
                         true
                     }
@@ -1166,6 +1373,9 @@
             }
             popup.show()
         }
+
+
+
 
         private fun saveBookmark() {
             val bookmark = Bookmark(
@@ -1384,7 +1594,7 @@
 
         private fun showAboutDialog() {
             val aboutText = """
-        PdfChitalka v6.5.0
+        PdfChitalka v6.5.2
         Сборка от ${getCurrentDate()}
         Полнофункциональный просмотрщик PDF
         

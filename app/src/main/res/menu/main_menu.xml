@@ -7,10 +7,6 @@
         android:title="Загрузить PDF"
         android:icon="@drawable/ic_baseline_file_open_24"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/menu_show_original"
-        android:title="Показать оригинал"
-        android:visible="true" />
 
     <item
         android:id="@+id/menu_save"
@@ -30,6 +26,10 @@
         android:title="Озвучить"
         android:icon="@drawable/ic_baseline_volume_up_24"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_tts_settings"
+        android:title="Настройки озвучки"
+        android:visible="true" />
 
 
     <item
@@ -67,10 +67,6 @@
         android:icon="@drawable/ic_baseline_fullscreen_24"
         app:showAsAction="never" />
     <!-- Добавить перед menu_about -->
-    <item
-        android:id="@+id/menu_tts_settings"
-        android:title="Настройки озвучки"
-        android:visible="true" />
 
     <item
         android:id="@+id/menu_about"

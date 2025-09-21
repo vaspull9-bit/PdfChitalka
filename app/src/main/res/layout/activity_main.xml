@@ -101,6 +101,19 @@
                 app:tint="@android:color/white"
                 android:visibility="visible" />
 
+            <ImageButton
+                android:id="@+id/btnSpeakToolbar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_speaker"
+                android:contentDescription="Озвучка"
+                android:visibility="gone"
+                android:background="?attr/colorPrimary"
+                app:tint="@android:color/white"
+                app:layout_constraintEnd_toStartOf="@+id/btnMenu"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
             <!-- Гибкое пространство -->
             <View
                 android:layout_width="0dp"
