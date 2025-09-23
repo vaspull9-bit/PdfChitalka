@@ -1,4 +1,4 @@
-// PdfChitalka v6.5.2 21/09/2025 18:07 Стабильная
+// PdfChitalka v6.5.3 21/09/2025 21:30 Стабильная
 // Чего нет: Женского голоса нет, повторений страницы нет, показа страницы чтения нет.
 // Все остальное - есть и мы пускаем эту версия в продакшн
 
@@ -507,6 +507,17 @@
         //
         ///////////////////////////////////////////////
 
+
+        private fun shouldAutoScrollToNextPage(currentPosition: Int): Boolean {
+            if (!ttsSettings.showCurrentPage) return false
+            if (currentPage >= totalPages - 1) return false // последняя страница
+
+            val nextPageStartPos = getTextPositionForPage(currentPage + 1)
+            // Если текущая позиция достигла или превысила начало следующей страницы
+            return currentPosition >= nextPageStartPos
+        }
+
+
         private fun loadTtsSettings() {
             ttsSettings = TtsSettings(
                 showCurrentPage = prefs.getBoolean("show_current_page", true),
@@ -559,49 +570,41 @@
                 try {
                     val availableVoices = tts.voices?.toList() ?: emptyList()
 
-                    availableVoices.forEach { voice ->
-                        Log.d("TTS_DEBUG", "Доступен голос: ${voice.name}, Язык: ${voice.locale}")
-                    }
-
-                    val russianVoices = availableVoices.filter { voice ->
-                        voice.locale?.let { locale ->
-                            locale.language == "ru" || locale.country == "RU" ||
-                                    locale.displayName.contains("рус", true) ||
-                                    locale.displayName.contains("russian", true)
-                        } ?: false
-                    }
-
-                    if (russianVoices.isEmpty()) {
-                        Log.e("TTS", "Русские голоса не найдены! Доступные: ${availableVoices.map { it.locale }}")
-                        return
-                    }
-
+                    // Лучшая логика выбора голоса
                     val targetVoice = when (voiceType) {
-                        "male" -> russianVoices.firstOrNull { voice ->
+                        "male" -> availableVoices.firstOrNull { voice ->
                             voice.name.contains("male", true) ||
                                     voice.name.contains("мужск", true) ||
+                                    voice.name.contains("низк", true) ||
                                     voice.name.contains("low", true) ||
-                                    voice.name.contains("deep", true)
+                                    voice.name.contains("deep", true) ||
+                                    voice.locale.toString().contains("ru") &&
+                                    !voice.name.contains("female", true)
                         }
-                        else -> russianVoices.firstOrNull { voice ->
+                        else -> availableVoices.firstOrNull { voice ->
                             voice.name.contains("female", true) ||
                                     voice.name.contains("женск", true) ||
+                                    voice.name.contains("высок", true) ||
                                     voice.name.contains("high", true) ||
+                                    voice.locale.toString().contains("ru") &&
                                     !voice.name.contains("male", true)
                         }
-                    } ?: russianVoices.first()
+                    } ?: availableVoices.firstOrNull { voice ->
+                        voice.locale.toString().contains("ru")
+                    } ?: availableVoices.firstOrNull() // Fallback на любой голос
 
-                    tts.voice = targetVoice
-                    Log.d("TTS", "Установлен голос: ${targetVoice.name}, тип: $voiceType")
+                    if (targetVoice != null) {
+                        tts.voice = targetVoice
+                        Log.d("TTS", "Установлен голос: ${targetVoice.name}, тип: $voiceType")
 
-                    runOnUiThread {
-                        Toast.makeText(
-                            this,
-                            "Голос: ${targetVoice.name}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        runOnUiThread {
+                            Toast.makeText(
+                                this,
+                                "Голос: ${targetVoice.name}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
-
                 } catch (e: Exception) {
                     Log.e("TTS", "Ошибка установки голоса: ${e.message}")
                 }
@@ -630,28 +633,34 @@
                     runOnUiThread {
                         isSpeaking = false
                         updatePlayerButtons()
-                        Log.d("TTS", "Озвучка завершена: $utteranceId")
 
                         if (utteranceId?.startsWith("speak_") == true) {
                             val nextPos = utteranceId.removePrefix("speak_").toIntOrNull() ?: 0
                             currentTextPosition = nextPos
 
-                            if (ttsSettings.showCurrentPage) {
-                                val nextPage = getPageForTextPosition(nextPos)
-                                if (nextPage != currentPage) {
-                                    showPage(nextPage)
+                            // АВТОПРОКРУТКА: Если включена опция показа текущей страницы
+                            if (shouldAutoScrollToNextPage(nextPos)) {
+                                showNextPage()
+                                currentSpeechPosition = getTextPositionForPage(currentPage)
+                                if (isReadingFullBook) {
+                                    speakFromPosition(currentSpeechPosition)
                                 }
                             }
 
                             if (isReadingFullBook && nextPos < currentTextContent.length) {
                                 speakFromPosition(nextPos)
                             } else if (!isReadingFullBook) {
+                                // ОБРАБОТКА РЕЖИМОВ ПОВТОРА
                                 when (ttsSettings.repeatMode) {
-                                    1 -> {
+                                    1 -> { // Повтор текущей страницы
                                         currentSpeechPosition = getTextPositionForPage(currentPage)
-                                        speakFromPosition(currentSpeechPosition)
+                                        if (currentSpeechPosition < currentTextContent.length) {
+                                            speakFromPosition(currentSpeechPosition)
+                                        }
                                     }
-                                    2 -> startSpeechFullBook(true)
+                                    2 -> { // Повтор всей книги
+                                        startSpeechFullBook(false)
+                                    }
                                     else -> stopSpeech()
                                 }
                             } else {
@@ -1123,7 +1132,8 @@ private fun showSpeechOptionsDialog() {
                 .setTitle("Настройки чтения")
                 .setView(dialogView)
                 .setPositiveButton("Сохранить") { _, _ ->
-                    val newSettings = ttsSettings.copy(
+                    // Сохраняем настройки независимо от состояния загрузки
+                    val newSettings = TtsSettings(
                         showCurrentPage = cbShowCurrentPage.isChecked,
                         speed = sbSpeed.progress / 100f,
                         repeatMode = when (rgRepeatMode.checkedRadioButtonId) {
@@ -1141,46 +1151,12 @@ private fun showSpeechOptionsDialog() {
                     ttsSettings = newSettings
                     saveTtsSettings()
                     applyTtsSettings()
-
                     Toast.makeText(this, "Настройки сохранены", Toast.LENGTH_SHORT).show()
                 }
-                .setNegativeButton("Отмена") { dialog, _ ->
-                    dialog.dismiss()
-                    if (wasSpeaking || wasPaused) {
-                        shouldShowPlayer = true
-                        updatePlayerVisibility()
-                    }
-                }
-                .setOnDismissListener {
-                    if (wasSpeaking || wasPaused) {
-                        shouldShowPlayer = true
-                        updatePlayerVisibility()
-                    }
-                }
+                .setNegativeButton("Отмена", null)
                 .show()
         }
 
-//        private fun checkTtsStatus() {
-//            val currentLanguage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                textToSpeech?.voice?.locale?.displayLanguage ?: "Не определен"
-//            } else {
-//                @Suppress("DEPRECATION")
-//                textToSpeech?.language?.displayLanguage ?: "Не определен"
-//            }
-//
-//            val status = """
-//              Статус TTS: ${if (isTtsInitialized) "Готов" else "Не готов"}
-//              Язык: $currentLanguage
-//              Скорость: ${ttsSettings.speed}x
-//              Режим: ${if (isReadingFullBook) "Всю книгу" else "Текущую страницу"}
-//             """.trimIndent()
-//
-//            AlertDialog.Builder(this)
-//                .setTitle("Статус TTS")
-//                .setMessage(status)
-//                .setPositiveButton("OK", null)
-//                .show()
-//        }
 
         private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
             override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
@@ -1321,6 +1297,7 @@ private fun showSpeechOptionsDialog() {
             popup.menu.findItem(R.id.menu_show_bookmarks).isEnabled = bookmarks.isNotEmpty()
             popup.menu.findItem(R.id.menu_search).isEnabled = isTextPdf && currentTextContent.isNotEmpty()
             popup.menu.findItem(R.id.menu_tts_settings).isEnabled = true
+            popup.menu.findItem(R.id.menu_goto_page).isEnabled = hasPdfLoaded && totalPages > 1
 
             popup.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
@@ -1366,6 +1343,11 @@ private fun showSpeechOptionsDialog() {
                     }
                    R.id.menu_about -> {
                         showAboutDialog()
+                        true
+                    }
+
+                    R.id.menu_tts_settings -> {
+                        showTtsSettingsDialog()
                         true
                     }
                     else -> false
@@ -1594,7 +1576,7 @@ private fun showSpeechOptionsDialog() {
 
         private fun showAboutDialog() {
             val aboutText = """
-        PdfChitalka v6.5.2
+        PdfChitalka v6.5.3
         Сборка от ${getCurrentDate()}
         Полнофункциональный просмотрщик PDF
         
